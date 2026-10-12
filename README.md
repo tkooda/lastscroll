@@ -37,11 +37,11 @@ Source: https://github.com/tkooda/lastscroll
 Needs JDK 17 and an Android SDK (platform 36, build-tools 36). Point to the
 SDK with `sdk.dir=...` in `local.properties` or the `ANDROID_HOME` variable.
 
-The APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
+The APK is written to `app/build/outputs/apk/debug/lastscroll-<version>-debug.apk`. The version comes from `versionName` in `app/build.gradle.kts`; bump it (and `versionCode`) for every release.
 
 ## Install
 
-    adb install -r app/build/outputs/apk/debug/app-debug.apk
+    adb install -r app/build/outputs/apk/debug/lastscroll-<version>-debug.apk
 
 ## Enable the accessibility service
 

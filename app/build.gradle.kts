@@ -15,7 +15,7 @@ android {
         minSdk = 28
         targetSdk = 36
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.0.1"
     }
 
     if (keystoreFile.exists()) {
@@ -43,4 +43,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+base {
+    archivesName = "lastscroll-${android.defaultConfig.versionName}"
 }
