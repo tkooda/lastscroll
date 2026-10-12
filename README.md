@@ -1,0 +1,91 @@
+# LastScroll
+
+A small sleep timer for short-video apps. While the timer runs, activity
+(taps, scrolls, volume button presses) inside the apps you select resets it.
+When it expires, LastScroll pauses media, goes to the home screen and locks
+the screen.
+
+Website: https://ionecho.com
+Source: https://github.com/tkooda/lastscroll
+
+## How it works
+
+- Pick the apps that should keep the timer alive and set the minutes
+  (default 20).
+- Start the timer with "Start timer", the home screen shortcut, or the
+  launcher long-press shortcut "Start sleep timer".
+- An ongoing notification shows the time the screen will turn off and a live
+  countdown, with a Cancel action. Swiping it away also cancels.
+- Near the end, a toast shows the minutes left once per minute
+  ("Screen off in 3 min" ... "Screen off in 1 min"). The final window is 20%
+  of the configured minutes, rounded up, between 1 and 5 minutes. A reset
+  that pushes the remaining time back above the window stops the toasts.
+- Pausing: when you switch to an app that is not selected (or to the home
+  screen), the timer pauses and the notification shows "Paused - N min left".
+  Returning to a selected app resumes from the frozen remaining time; it does
+  not reset to full. The notification shade, keyboards and LastScroll itself
+  never pause the timer. A timer started while no selected app is in front
+  starts paused. If the accessibility service is off, the timer never pauses.
+- On expiry: media is paused, then (if the accessibility service is on) the
+  phone goes home and locks the screen. If the service is off, a notification
+  says the screen could not be turned off.
+
+## Build
+
+    ./gradlew assembleDebug
+
+Needs JDK 17 and an Android SDK (platform 36, build-tools 36). Point to the
+SDK with `sdk.dir=...` in `local.properties` or the `ANDROID_HOME` variable.
+
+The APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
+
+## Install
+
+    adb install -r app/build/outputs/apk/debug/app-debug.apk
+
+## Enable the accessibility service
+
+1. Open LastScroll and tap "Accessibility settings", read the disclosure and
+   tap Agree.
+2. Android 13 and later block accessibility for sideloaded apps until you
+   allow it: open Settings > Apps > LastScroll (App info), tap the menu
+   (three dots) and choose "Allow restricted settings". Then try again.
+3. In Accessibility settings, open LastScroll and turn it on.
+
+## Permissions
+
+- Accessibility service: observes taps, scrolls and window changes in the
+  selected apps and volume key presses, only to reset or pause the timer, and
+  performs "home" and "lock screen" on expiry. Keys are never consumed.
+- POST_NOTIFICATIONS: shows the timer notification (Android 13+).
+- FOREGROUND_SERVICE, FOREGROUND_SERVICE_SPECIAL_USE: keeps the timer
+  running while you use other apps.
+- Package visibility is limited to launchable apps (a `<queries>` filter),
+  used to list apps to choose from.
+- No INTERNET permission.
+
+## Verify resets
+
+Each reset, pause and resume is logged:
+
+    adb logcat -s LastScroll
+
+Use this to check, for example, whether autoplay in an app resets the timer
+without you touching it.
+
+## Release signing
+
+`./gradlew assembleRelease` builds a minified release APK. It is signed only
+if a `keystore.properties` file exists in the project root (it is
+gitignored):
+
+    storeFile=/path/to/release.jks
+    storePassword=...
+    keyAlias=...
+    keyPassword=...
+
+Without it the release APK is unsigned.
+
+## Privacy
+
+See [PRIVACY.md](PRIVACY.md).

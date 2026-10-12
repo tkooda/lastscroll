@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LastScroll</string>
+    <string name="shortcut_label">Start sleep timer</string>
+    <string name="a11y_description">LastScroll observes tap and scroll events, app window changes, and volume key presses, only within the apps you select and only while a sleep timer is running. It uses them only to reset or pause the sleep timer, and to go home and lock the screen when the timer expires. Nothing is stored or transmitted.</string>
+    <string name="disclosure_title">Accessibility use</string>
+    <string name="disclosure">LastScroll uses the Accessibility API to observe tap and scroll events, app window changes, and volume key presses, only within the apps you select and only while a sleep timer is running.\n\nThis is used only to reset the sleep timer while you are active, pause it when you leave those apps, and turn the screen off when it expires.\n\nNothing is stored or transmitted.</string>
+    <string name="agree">Agree</string>
+    <string name="decline">Decline</string>
+    <string name="a11y_on">Accessibility service: on</string>
+    <string name="a11y_off">Accessibility service: off</string>
+    <string name="a11y_button">Accessibility settings</string>
+    <string name="restricted_note">If the app was sideloaded on Android 13 or later, first open App info, tap the menu, and choose \"Allow restricted settings\".</string>
+    <string name="minutes_hint">Minutes</string>
+    <string name="start">Start timer</string>
+    <string name="add_shortcut">Add home screen shortcut</string>
+    <string name="apps_label">Apps that keep the timer alive:</string>
+    <string name="channel">Sleep timer</string>
+    <string name="notif_title">Sleep timer active</string>
+    <string name="notif_text">Screen off at %1$s</string>
+    <string name="notif_paused">Paused - %1$d min left</string>
+    <string name="cancel">Cancel</string>
+    <string name="toast">Screen off in %1$d min</string>
+    <string name="no_a11y">Could not turn the screen off: the accessibility service is off.</string>
+    <string name="no_pin">Pinned shortcuts are not supported by this launcher.</string>
+</resources>
