@@ -10,8 +10,16 @@ Source: https://github.com/tkooda/lastscroll
 
 ## How it works
 
-- Set "Sleep after idle minutes" (default 20). Under Apps, tap "Add apps"
-  to pick the apps that should keep the timer alive (search, check, Save).
+- The settings screen lists, top to bottom: "Start timer" (shown once
+  everything is set up), "Required permissions" (notification and
+  accessibility, each marked Enabled or Not enabled, with a Grant button
+  when needed), "Sleep timer", "Apps", and "Add to home screen".
+- If Android blocks the accessibility permission, the screen shows the
+  steps to allow it (Open app info, three-dot menu, Allow restricted
+  settings).
+- Tap "Sleep after idle" to pick the minutes on a scroll wheel (default 20).
+  Under Apps, tap "Add apps" to pick the apps that should keep the timer
+  alive (search, check, Save).
 - Start the timer with "Start timer", the home screen shortcut, or the
   launcher long-press shortcut "Start sleep timer".
 - An ongoing notification shows the time the screen will turn off and a live
