@@ -3,64 +3,159 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/status"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-    <Button
-        android:id="@+id/accessibility"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/a11y_button" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="8dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/restricted_note"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+            <TextView
+                style="@style/SectionHeader"
+                android:text="@string/section_timer" />
 
-    <EditText
-        android:id="@+id/minutes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/minutes_hint"
-        android:inputType="number"
-        android:maxLength="4" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="72dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="16dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/RowTitle"
+                        android:labelFor="@+id/minutes"
+                        android:text="@string/minutes_label" />
+
+                    <TextView
+                        style="@style/RowSummary"
+                        android:text="@string/minutes_summary" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@id/minutes"
+                    android:layout_width="72dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:gravity="end"
+                    android:imeOptions="actionDone"
+                    android:importantForAutofill="no"
+                    android:inputType="number"
+                    android:maxLength="4"
+                    android:selectAllOnFocus="true" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
+            <TextView
+                style="@style/SectionHeader"
+                android:text="@string/section_a11y" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="72dp"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="16dp">
+
+                <TextView
+                    style="@style/RowTitle"
+                    android:text="@string/a11y_status" />
+
+                <TextView
+                    android:id="@+id/status"
+                    style="@style/RowSummary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/a11y_off"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp">
+
+                <TextView
+                    style="@style/RowSummary"
+                    android:text="@string/restricted_note" />
+
+                <Button
+                    android:id="@+id/accessibility"
+                    style="@android:style/Widget.Material.Button.Colored"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginVertical="8dp"
+                    android:text="@string/turn_on" />
+            </LinearLayout>
+
+            <View style="@style/Divider" />
+
+            <TextView
+                style="@style/SectionHeader"
+                android:text="@string/section_apps" />
+
+            <TextView
+                android:id="@+id/no_apps"
+                style="@style/RowSummary"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="8dp"
+                android:text="@string/no_apps"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/apps"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <Button
+                android:id="@+id/add_apps"
+                style="@android:style/Widget.Material.Button.Borderless.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:enabled="false"
+                android:text="@string/add_apps" />
+        </LinearLayout>
+    </ScrollView>
+
+    <View style="@style/Divider" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/start"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/start" />
+        android:gravity="end|center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp">
 
         <Button
             android:id="@+id/shortcut"
-            android:layout_width="0dp"
+            style="@android:style/Widget.Material.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
             android:text="@string/add_shortcut" />
+
+        <Button
+            android:id="@+id/start"
+            style="@android:style/Widget.Material.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/start" />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="8dp"
-        android:text="@string/apps_label" />
-
-    <ListView
-        android:id="@+id/apps"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
 </LinearLayout>

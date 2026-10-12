@@ -10,8 +10,8 @@ Source: https://github.com/tkooda/lastscroll
 
 ## How it works
 
-- Pick the apps that should keep the timer alive and set the minutes
-  (default 20).
+- Set "Sleep after idle minutes" (default 20). Under Apps, tap "Add apps"
+  to pick the apps that should keep the timer alive (search, check, Save).
 - Start the timer with "Start timer", the home screen shortcut, or the
   launcher long-press shortcut "Start sleep timer".
 - An ongoing notification shows the time the screen will turn off and a live
@@ -45,8 +45,8 @@ The APK is written to `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Enable the accessibility service
 
-1. Open LastScroll and tap "Accessibility settings", read the disclosure and
-   tap Agree.
+1. Open LastScroll; while the status shows Off, tap "Turn on", read the
+   disclosure and tap Agree.
 2. Android 13 and later block accessibility for sideloaded apps until you
    allow it: open Settings > Apps > LastScroll (App info), tap the menu
    (three dots) and choose "Allow restricted settings". Then try again.
