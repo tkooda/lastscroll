@@ -164,8 +164,8 @@ class TimerService : Service() {
             this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
         )
         val min = timer.minutes(now())
-        // Paused shows "II" before the minutes, like a pause sign.
-        val shown = if (paused) "II$min" else min.toString()
+        // Paused shows "~" before the minutes ("II" read like "11").
+        val shown = if (paused) "~$min" else min.toString()
         val mode = MainActivity.display(this)
         val promote = mode == MainActivity.DISPLAY_BOTH && Build.VERSION.SDK_INT >= 36 &&
             getSystemService(NotificationManager::class.java).canPostPromotedNotifications()
