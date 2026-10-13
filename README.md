@@ -1,6 +1,6 @@
 # LastScroll
 
-A sleep timer for short-video apps.
+A sleep timer for short-video apps (like TikTok / Instagram).
 
 Ever fallen asleep scrolling short videos? The phone keeps playing all
 night, the screen stays on and the battery is empty by morning.
