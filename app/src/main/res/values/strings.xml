@@ -10,7 +10,6 @@
     <string name="section_permissions">Required permissions</string>
     <string name="section_timer">Sleep timer</string>
     <string name="section_apps">Apps</string>
-    <string name="enabled">Enabled</string>
     <string name="not_enabled">Not enabled</string>
     <string name="notif_permission">Notification permission</string>
     <string name="notif_why">Shows when the screen will turn off, with a button to cancel.</string>
@@ -45,6 +44,7 @@
     <string name="shortcut_text">Add an icon to your home screen that starts the sleep timer with one tap.</string>
     <string name="add_shortcut">Add to home screen</string>
     <string name="start">Start timer</string>
+    <string name="stop">Stop timer</string>
     <string name="channel">Sleep timer</string>
     <string name="notif_title">Sleep timer active</string>
     <string name="notif_text">Screen off in %1$d min</string>

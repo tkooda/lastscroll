@@ -49,7 +49,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
@@ -98,10 +98,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -250,7 +250,27 @@ class MainActivity : ComponentActivity() {
                     bottom = padding.calculateBottomPadding() + 24.dp,
                 ),
             ) {
-                if (ready) {
+                if (TimerService.running) {
+                    item {
+                        FilledTonalButton(
+                            onClick = { TimerService.stop(this@MainActivity) },
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                            ),
+                            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                        ) {
+                            Icon(
+                                painterResource(R.drawable.ic_stop),
+                                contentDescription = null,
+                                Modifier.size(ButtonDefaults.IconSize),
+                            )
+                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                            Text(stringResource(R.string.stop))
+                        }
+                    }
+                } else if (ready) {
                     item {
                         Button(
                             onClick = { startForegroundService(Intent(this@MainActivity, TimerService::class.java)) },
@@ -263,28 +283,31 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                item { SectionHeader(R.string.section_permissions) }
-                item {
-                    PermissionRow(
-                        title = R.string.notif_permission,
-                        why = R.string.notif_why,
-                        enabled = notifOn,
-                        button = R.string.notif_grant,
-                        onGrant = ::grantNotifications,
-                    )
+                if (!notifOn || !a11yOn) {
+                    item { SectionHeader(R.string.section_permissions) }
+                    if (!notifOn) {
+                        item {
+                            PermissionRow(
+                                title = R.string.notif_permission,
+                                why = R.string.notif_why,
+                                button = R.string.notif_grant,
+                                onGrant = ::grantNotifications,
+                            )
+                        }
+                    }
+                    if (!a11yOn) {
+                        item {
+                            PermissionRow(
+                                title = R.string.a11y_permission,
+                                why = R.string.a11y_why,
+                                button = R.string.a11y_grant,
+                                onGrant = { showDisclosure = true },
+                            )
+                        }
+                        if (a11yTried) item { RestrictedHelp() }
+                    }
+                    item { SectionDivider() }
                 }
-                item {
-                    PermissionRow(
-                        title = R.string.a11y_permission,
-                        why = R.string.a11y_why,
-                        enabled = a11yOn,
-                        button = R.string.a11y_grant,
-                        onGrant = { showDisclosure = true },
-                    )
-                }
-                if (!a11yOn && a11yTried) item { RestrictedHelp() }
-
-                item { SectionDivider() }
                 item { SectionHeader(R.string.section_timer) }
                 item {
                     ListItem(
@@ -293,20 +316,14 @@ class MainActivity : ComponentActivity() {
                         supportingContent = {
                             Text(pluralStringResource(R.plurals.idle_summary, minutes, minutes))
                         },
-                        trailingContent = {
-                            Text(
-                                stringResource(R.string.minutes_value, minutes),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        },
+                        trailingContent = { DropdownValue(stringResource(R.string.minutes_value, minutes)) },
                     )
                 }
                 item {
                     ListItem(
                         modifier = Modifier.clickable { showDisplay = true },
                         headlineContent = { Text(stringResource(R.string.display_title)) },
-                        supportingContent = { Text(stringResource(DISPLAY_LABELS[display])) },
+                        trailingContent = { DropdownValue(stringResource(DISPLAY_LABELS[display])) },
                     )
                 }
 
@@ -426,25 +443,27 @@ class MainActivity : ComponentActivity() {
         HorizontalDivider(Modifier.padding(top = 16.dp))
     }
 
+    // Current value of a setting that opens a picker, with a dropdown arrow.
     @Composable
-    private fun PermissionRow(title: Int, why: Int, enabled: Boolean, button: Int, onGrant: () -> Unit) {
-        val color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-        val icon: ImageVector = if (enabled) Icons.Filled.CheckCircle else Icons.Filled.Warning
+    private fun DropdownValue(value: String) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(value, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
+        }
+    }
+
+    @Composable
+    private fun PermissionRow(title: Int, why: Int, button: Int, onGrant: () -> Unit) {
+        val color = MaterialTheme.colorScheme.error
         ListItem(
-            leadingContent = { Icon(icon, contentDescription = null, tint = color) },
+            leadingContent = { Icon(Icons.Filled.Warning, contentDescription = null, tint = color) },
             headlineContent = { Text(stringResource(title)) },
             supportingContent = {
                 Column {
-                    Text(
-                        stringResource(if (enabled) R.string.enabled else R.string.not_enabled),
-                        color = color,
-                        style = MaterialTheme.typography.labelLarge,
-                    )
-                    if (!enabled) {
-                        Text(stringResource(why), Modifier.padding(top = 4.dp))
-                        Button(onClick = onGrant, modifier = Modifier.padding(top = 12.dp)) {
-                            Text(stringResource(button))
-                        }
+                    Text(stringResource(R.string.not_enabled), color = color, style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(why), Modifier.padding(top = 4.dp))
+                    Button(onClick = onGrant, modifier = Modifier.padding(top = 12.dp)) {
+                        Text(stringResource(button))
                     }
                 }
             },

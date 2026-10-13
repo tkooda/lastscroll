@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -21,6 +22,9 @@ import android.os.Looper
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlin.math.ceil
 
 class TimerService : Service() {
@@ -61,6 +65,7 @@ class TimerService : Service() {
         reset()
         if (!started) {
             started = true
+            running = true
             startForeground(NOTIF_ID, buildNotification())
         }
         return START_NOT_STICKY
@@ -71,6 +76,7 @@ class TimerService : Service() {
         handler.removeCallbacks(toastTick)
         handler.removeCallbacks(minuteTick)
         instance = null
+        running = false
         super.onDestroy()
     }
 
@@ -178,19 +184,15 @@ class TimerService : Service() {
                 ).build()
             )
         if (promote) {
-            // Android 16 Live Update: the status bar chip shows the icon and the countdown.
+            // Android 16 Live Update: the status bar chip shows the icon and the minutes left.
             b.addExtras(Bundle().apply { putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true) })
-            if (paused) b.setShortCriticalText(getString(R.string.minutes_value, min))
+            b.setShortCriticalText(min.toString())
         }
-        if (paused) {
-            b.setContentText(getString(R.string.notif_paused, min)).setShowWhen(false)
-        } else {
-            b.setContentText(getString(R.string.notif_text, min))
-                .setWhen(deadline)
-                .setShowWhen(true)
-                .setUsesChronometer(true)
-                .setChronometerCountDown(true)
-        }
+        // Whole minutes only: no ticking seconds anywhere.
+        b.setContentText(getString(if (paused) R.string.notif_paused else R.string.notif_text, min))
+            .setShowWhen(false)
+            .setUsesChronometer(false)
+            .setChronometerCountDown(false)
         return b.build()
     }
 
@@ -242,5 +244,14 @@ class TimerService : Service() {
 
         var instance: TimerService? = null
             private set
+
+        // True while a timer runs; the config screen observes it.
+        var running by mutableStateOf(false)
+            private set
+
+        // Same as the notification's Cancel action.
+        fun stop(c: Context) {
+            c.startService(Intent(c, TimerService::class.java).setAction(ACTION_CANCEL))
+        }
     }
 }

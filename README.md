@@ -11,9 +11,9 @@ Source: https://github.com/tkooda/lastscroll
 ## How it works
 
 - The settings screen lists, top to bottom: "Start timer" (shown once
-  everything is set up), "Required permissions" (notification and
-  accessibility, each marked Enabled or Not enabled, with a Grant button
-  when needed), "Sleep timer", "Apps", and "Add to home screen".
+  everything is set up) or "Stop timer" (while a timer runs), "Required
+  permissions" (only while a permission is missing, listing just the missing
+  ones with a Grant button), "Sleep timer", "Apps", and "Add to home screen".
 - If Android blocks the accessibility permission, the screen shows the
   steps to allow it (Open app info, three-dot menu, Allow restricted
   settings).
@@ -22,12 +22,13 @@ Source: https://github.com/tkooda/lastscroll
   alive (search, check, Save).
 - Start the timer with "Start timer", the home screen shortcut, or the
   launcher long-press shortcut "Start sleep timer".
-- An ongoing notification shows "Screen off in N min" and a live countdown,
-  with a Cancel action. Swiping it away also cancels. A reset that changes the
-  minutes left shows a "Sleep timer reset" toast.
+- An ongoing notification shows "Screen off in N min" (whole minutes, no
+  seconds countdown), with a Cancel action. Swiping it away also cancels.
+  A reset that changes the minutes left shows a "Sleep timer reset" toast.
 - "Status bar shows" picks the status bar icon: the app icon, the minutes left
-  as a number, or (default) the icon plus time as an Android 16 Live Update
-  chip, falling back to the number if Live Updates are off or unsupported.
+  as a number, or (default) the icon plus the minutes left as an Android 16
+  Live Update chip, falling back to the number if Live Updates are off or
+  unsupported.
 - Near the end, a toast shows the minutes left once per minute
   ("Screen off in 3 min" ... "Screen off in 1 min"). The final window is 20%
   of the configured minutes, rounded up, between 1 and 5 minutes. A reset
