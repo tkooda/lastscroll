@@ -5,9 +5,6 @@ A small sleep timer for short-video apps. While the timer runs, activity
 When it expires, LastScroll pauses media, goes to the home screen and locks
 the screen.
 
-Website: https://ionecho.com
-Source: https://github.com/tkooda/lastscroll
-
 ## How it works
 
 - The settings screen lists, top to bottom: "Start timer" (shown once
