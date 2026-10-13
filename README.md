@@ -21,7 +21,8 @@ the video and turns the screen off.
 1. Open LastScroll and pick the apps you watch videos in.
 2. Set how many minutes of no touching should count as asleep.
 3. Start the timer from the app or from its home-screen shortcut.
-4. To stop it, tap Cancel on the LastScroll notification.
+4. To stop it, tap "Stop timer" in the app, or "Cancel" on the LastScroll
+   notification.
 
 If Android will not let you turn on the accessibility setting, open
 Settings > Apps > LastScroll, tap the three-dot menu, choose "Allow
@@ -39,3 +40,7 @@ LastScroll has no internet access and collects nothing. See
 ## Building from source
 
 See [BUILDING.md](BUILDING.md).
+
+## License
+
+MIT - see [LICENSE](LICENSE).

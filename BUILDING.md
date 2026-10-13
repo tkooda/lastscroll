@@ -52,8 +52,8 @@ The APK is written to `app/build/outputs/apk/debug/lastscroll-<version>-debug.ap
 
 ## Enable the accessibility service
 
-1. Open LastScroll; while the status shows Off, tap "Turn on", read the
-   disclosure and tap Agree.
+1. Open LastScroll; under "Required permissions", tap "Grant accessibility
+   permission", read the disclosure and tap "Continue".
 2. Android 13 and later block accessibility for sideloaded apps until you
    allow it: open Settings > Apps > LastScroll (App info), tap the menu
    (three dots) and choose "Allow restricted settings". Then try again.
@@ -103,6 +103,9 @@ when a tag like `v1.2.3` is pushed. The tag (without the `v`) must equal
 `versionName`, or the build fails. Running the workflow by hand (Actions >
 Release > Run workflow) builds and signs the APK and uploads it as a
 workflow artifact, without creating a release.
+
+The release asset is named `lastscroll-<version>.apk` (for example
+`lastscroll-1.2.3.apk`).
 
 To cut a release:
 
