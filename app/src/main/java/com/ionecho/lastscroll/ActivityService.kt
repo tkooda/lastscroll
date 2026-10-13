@@ -1,7 +1,9 @@
 package com.ionecho.lastscroll
 
 import android.accessibilityservice.AccessibilityService
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -43,9 +45,16 @@ class ActivityService : AccessibilityService() {
         val pkg = event.packageName?.toString() ?: return
         if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             if (pkg == packageName || pkg == "com.android.systemui" || isInputMethod(pkg)) return
+            val selected = pkg in MainActivity.selected(this)
+            // Only a full-screen activity of another app (or the home screen) pauses; ignore
+            // overlays, dialogs, toasts and windows of packages we cannot see.
+            if (!selected && !isActivity(pkg, event.className)) {
+                if (TimerService.instance != null) Log.d(TimerService.TAG, "ignore: $pkg ${event.className}")
+                return
+            }
             foregroundPackage = pkg
             val timer = TimerService.instance ?: return
-            if (pkg in MainActivity.selected(this)) timer.resume(pkg) else timer.pause(pkg)
+            if (selected) timer.resume(pkg) else timer.pause(pkg)
             return
         }
         if (TimerService.instance == null || pkg !in MainActivity.selected(this)) return
@@ -67,6 +76,13 @@ class ActivityService : AccessibilityService() {
         lastReset = now
         Log.d(TimerService.TAG, "reset: $type $pkg")
         TimerService.instance?.reset()
+    }
+
+    private fun isActivity(pkg: String, cls: CharSequence?): Boolean = cls != null && try {
+        packageManager.getActivityInfo(ComponentName(pkg, cls.toString()), 0)
+        true
+    } catch (e: PackageManager.NameNotFoundException) {
+        false
     }
 
     private fun isInputMethod(pkg: String): Boolean =

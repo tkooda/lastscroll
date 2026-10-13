@@ -15,8 +15,8 @@ android {
         applicationId = "com.ionecho.lastscroll"
         minSdk = 28
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.0.5"
+        versionCode = 6
+        versionName = "0.0.6"
     }
 
     if (keystoreFile.exists()) {
@@ -55,6 +55,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.activity:activity-compose:1.13.0")
+    testImplementation("junit:junit:4.13.2")
 }
 
 base {
