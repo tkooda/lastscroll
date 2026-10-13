@@ -62,6 +62,8 @@ jobs:
       - name: Verify signature
         run: |
           apk=$(ls app/build/outputs/apk/release/lastscroll-*-release.apk)
+          mv "$apk" "${apk%-release.apk}.apk"
+          apk="${apk%-release.apk}.apk"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$apk"
           echo "APK=$apk" >> "$GITHUB_ENV"
 
