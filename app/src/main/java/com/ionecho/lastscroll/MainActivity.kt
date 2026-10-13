@@ -43,6 +43,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -75,6 +76,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -102,6 +104,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -119,6 +122,7 @@ class MainActivity : ComponentActivity() {
     private var notifOn by mutableStateOf(true)
     private var a11yTried by mutableStateOf(false)
     private var minutes by mutableIntStateOf(20)
+    private var display by mutableIntStateOf(DISPLAY_BOTH)
     private var selected by mutableStateOf(emptySet<String>())
     private var requestedAt = 0L
 
@@ -132,6 +136,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         minutes = minutes(this)
+        display = display(this)
         selected = selected(this)
         a11yTried = prefs(this).getBoolean(KEY_A11Y_TRIED, false)
         val pm = packageManager
@@ -194,6 +199,12 @@ class MainActivity : ComponentActivity() {
         prefs(this).edit().putInt(KEY_MINUTES, m).apply()
     }
 
+    private fun saveDisplay(d: Int) {
+        display = d
+        prefs(this).edit().putInt(KEY_DISPLAY, d).apply()
+        TimerService.instance?.refresh()
+    }
+
     private fun saveApps(set: Set<String>) {
         selected = set
         prefs(this).edit().putStringSet(KEY_APPS, set).apply()
@@ -219,6 +230,7 @@ class MainActivity : ComponentActivity() {
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
         var showDisclosure by rememberSaveable { mutableStateOf(false) }
         var showMinutes by rememberSaveable { mutableStateOf(false) }
+        var showDisplay by rememberSaveable { mutableStateOf(false) }
         var showPicker by rememberSaveable { mutableStateOf(false) }
         val shown = apps.orEmpty().filter { it.pkg in selected }
         val ready = notifOn && a11yOn && shown.isNotEmpty()
@@ -288,6 +300,13 @@ class MainActivity : ComponentActivity() {
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         },
+                    )
+                }
+                item {
+                    ListItem(
+                        modifier = Modifier.clickable { showDisplay = true },
+                        headlineContent = { Text(stringResource(R.string.display_title)) },
+                        supportingContent = { Text(stringResource(DISPLAY_LABELS[display])) },
                     )
                 }
 
@@ -374,6 +393,12 @@ class MainActivity : ComponentActivity() {
             MinutesDialog(onDismiss = { showMinutes = false }, onSave = {
                 showMinutes = false
                 saveMinutes(it)
+            })
+        }
+        if (showDisplay) {
+            DisplayDialog(onDismiss = { showDisplay = false }, onSave = {
+                showDisplay = false
+                saveDisplay(it)
             })
         }
         if (showPicker) {
@@ -521,6 +546,39 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    @Composable
+    private fun DisplayDialog(onDismiss: () -> Unit, onSave: (Int) -> Unit) {
+        var value by rememberSaveable { mutableIntStateOf(display) }
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            modifier = Modifier.padding(horizontal = 24.dp),
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+            title = { Text(stringResource(R.string.display_title)) },
+            text = {
+                Column {
+                    DISPLAY_LABELS.forEachIndexed { i, label ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(selected = value == i, role = Role.RadioButton, onClick = { value = i })
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(selected = value == i, onClick = null)
+                            Text(
+                                stringResource(label),
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 16.dp),
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { onSave(value) }) { Text(stringResource(R.string.ok)) } },
+            dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+        )
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun AppPicker(apps: List<App>?, onDismiss: () -> Unit, onSave: (Set<String>) -> Unit) {
@@ -603,6 +661,13 @@ class MainActivity : ComponentActivity() {
         private const val KEY_APPS = "apps"
         private const val KEY_MINUTES = "minutes"
         private const val KEY_A11Y_TRIED = "a11y_tried"
+        private const val KEY_DISPLAY = "status_bar"
+
+        // Status bar display choices, in dialog order.
+        const val DISPLAY_ICON = 0
+        const val DISPLAY_TIME = 1
+        const val DISPLAY_BOTH = 2
+        private val DISPLAY_LABELS = listOf(R.string.display_icon, R.string.display_time, R.string.display_both)
 
         private fun prefs(c: Context): SharedPreferences =
             c.getSharedPreferences("settings", Context.MODE_PRIVATE)
@@ -610,6 +675,8 @@ class MainActivity : ComponentActivity() {
         fun selected(c: Context): Set<String> = prefs(c).getStringSet(KEY_APPS, emptySet()) ?: emptySet()
 
         fun minutes(c: Context): Int = prefs(c).getInt(KEY_MINUTES, 20)
+
+        fun display(c: Context): Int = prefs(c).getInt(KEY_DISPLAY, DISPLAY_BOTH)
     }
 }
 

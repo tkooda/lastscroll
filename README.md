@@ -22,8 +22,12 @@ Source: https://github.com/tkooda/lastscroll
   alive (search, check, Save).
 - Start the timer with "Start timer", the home screen shortcut, or the
   launcher long-press shortcut "Start sleep timer".
-- An ongoing notification shows the time the screen will turn off and a live
-  countdown, with a Cancel action. Swiping it away also cancels.
+- An ongoing notification shows "Screen off in N min" and a live countdown,
+  with a Cancel action. Swiping it away also cancels. A reset that changes the
+  minutes left shows a "Sleep timer reset" toast.
+- "Status bar shows" picks the status bar icon: the app icon, the minutes left
+  as a number, or (default) the icon plus time as an Android 16 Live Update
+  chip, falling back to the number if Live Updates are off or unsupported.
 - Near the end, a toast shows the minutes left once per minute
   ("Screen off in 3 min" ... "Screen off in 1 min"). The final window is 20%
   of the configured minutes, rounded up, between 1 and 5 minutes. A reset
@@ -66,6 +70,8 @@ The APK is written to `app/build/outputs/apk/debug/lastscroll-<version>-debug.ap
   selected apps and volume key presses, only to reset or pause the timer, and
   performs "home" and "lock screen" on expiry. Keys are never consumed.
 - POST_NOTIFICATIONS: shows the timer notification (Android 13+).
+- POST_PROMOTED_NOTIFICATIONS: lets the timer show as a Live Update chip
+  in the status bar (Android 16+).
 - FOREGROUND_SERVICE, FOREGROUND_SERVICE_SPECIAL_USE: keeps the timer
   running while you use other apps.
 - Package visibility is limited to launchable apps (a `<queries>` filter),

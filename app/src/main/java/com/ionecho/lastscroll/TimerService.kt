@@ -6,26 +6,34 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.Typeface
 import android.graphics.drawable.Icon
 import android.media.AudioManager
+import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.format.DateFormat
 import android.util.Log
 import android.view.KeyEvent
 import android.widget.Toast
-import java.util.Date
 import kotlin.math.ceil
 
 class TimerService : Service() {
     private val handler = Handler(Looper.getMainLooper())
     private val expire = Runnable { onExpire() }
     private val toastTick = Runnable { onToast() }
+    private val minuteTick = Runnable { onMinute() }
     private var deadline = 0L
     private var remaining = 0L
     private var paused = false
     private var toastMin = 0
     private var lastPost = 0L
+    private var lastMin = -1
     private var started = false
 
     override fun onBind(intent: Intent?) = null
@@ -61,12 +69,18 @@ class TimerService : Service() {
     override fun onDestroy() {
         handler.removeCallbacks(expire)
         handler.removeCallbacks(toastTick)
+        handler.removeCallbacks(minuteTick)
         instance = null
         super.onDestroy()
     }
 
     fun reset() {
-        val full = MainActivity.minutes(this) * 60_000L
+        val total = MainActivity.minutes(this)
+        val full = total * 60_000L
+        // Toast only when the reset changes the minutes shown (not on start or while paused).
+        if (started && !paused && minutesLeft() < total) {
+            handler.post { Toast.makeText(this, R.string.toast_reset, Toast.LENGTH_SHORT).show() }
+        }
         if (paused) remaining = full else schedule(System.currentTimeMillis() + full)
         post(false)
     }
@@ -77,6 +91,7 @@ class TimerService : Service() {
         remaining = deadline - System.currentTimeMillis()
         handler.removeCallbacks(expire)
         handler.removeCallbacks(toastTick)
+        handler.removeCallbacks(minuteTick)
         Log.d(TAG, "pause: $pkg")
         post(true)
     }
@@ -99,6 +114,23 @@ class TimerService : Service() {
         val window = ceil(MainActivity.minutes(this) * 0.2).toInt().coerceIn(1, 5)
         toastMin = minOf(window.toLong(), left / 60_000L).toInt()
         if (toastMin >= 1) handler.postDelayed(toastTick, left - toastMin * 60_000L)
+        // Repost when the whole minutes left change.
+        handler.removeCallbacks(minuteTick)
+        if (left > 0) handler.postDelayed(minuteTick, (left - 1) % 60_000L + 1)
+    }
+
+    private fun onMinute() {
+        post(true)
+        val left = deadline - System.currentTimeMillis()
+        if (left > 0) handler.postDelayed(minuteTick, (left - 1) % 60_000L + 1)
+    }
+
+    // Status bar display setting changed.
+    fun refresh() = post(true)
+
+    private fun minutesLeft(): Int {
+        val left = if (paused) remaining else deadline - System.currentTimeMillis()
+        return ceil(left / 60_000.0).toInt()
     }
 
     private fun onToast() {
@@ -110,8 +142,10 @@ class TimerService : Service() {
     // Repost the notification, at most every few seconds unless forced.
     private fun post(force: Boolean) {
         val now = System.currentTimeMillis()
-        if (!force && now - lastPost < 5_000L) return
+        val min = minutesLeft()
+        if (!force && now - lastPost < 5_000L && min == lastMin) return
         lastPost = now
+        lastMin = min
         getSystemService(NotificationManager::class.java).notify(NOTIF_ID, buildNotification())
     }
 
@@ -123,8 +157,15 @@ class TimerService : Service() {
         val open = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
         )
+        val min = minutesLeft()
+        val mode = MainActivity.display(this)
+        val promote = mode == MainActivity.DISPLAY_BOTH && Build.VERSION.SDK_INT >= 36 &&
+            getSystemService(NotificationManager::class.java).canPostPromotedNotifications()
         val b = Notification.Builder(this, CHANNEL)
-            .setSmallIcon(R.drawable.ic_notification)
+            .setSmallIcon(
+                if (mode == MainActivity.DISPLAY_ICON || promote) Icon.createWithResource(this, R.drawable.ic_notification)
+                else Icon.createWithBitmap(minutesBitmap(min))
+            )
             .setContentTitle(getString(R.string.notif_title))
             .setOngoing(true)
             .setOnlyAlertOnce(true)
@@ -136,18 +177,39 @@ class TimerService : Service() {
                     getString(R.string.cancel), cancel
                 ).build()
             )
+        if (promote) {
+            // Android 16 Live Update: the status bar chip shows the icon and the countdown.
+            b.addExtras(Bundle().apply { putBoolean(EXTRA_REQUEST_PROMOTED_ONGOING, true) })
+            if (paused) b.setShortCriticalText(getString(R.string.minutes_value, min))
+        }
         if (paused) {
-            val min = ceil(remaining / 60_000.0).toInt()
             b.setContentText(getString(R.string.notif_paused, min)).setShowWhen(false)
         } else {
-            val time = DateFormat.getTimeFormat(this).format(Date(deadline))
-            b.setContentText(getString(R.string.notif_text, time))
+            b.setContentText(getString(R.string.notif_text, min))
                 .setWhen(deadline)
                 .setShowWhen(true)
                 .setUsesChronometer(true)
                 .setChronometerCountDown(true)
         }
         return b.build()
+    }
+
+    // White minutes number on a transparent square, as large as fits.
+    private fun minutesBitmap(min: Int): Bitmap {
+        val size = 96
+        val text = min.toString()
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            typeface = Typeface.create("sans-serif-condensed", Typeface.BOLD)
+            textSize = size.toFloat()
+        }
+        val r = Rect()
+        paint.getTextBounds(text, 0, text.length, r)
+        paint.textSize *= minOf(size / r.width().toFloat(), size / r.height().toFloat())
+        paint.getTextBounds(text, 0, text.length, r)
+        val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        Canvas(bmp).drawText(text, size / 2f - r.exactCenterX(), size / 2f - r.exactCenterY(), paint)
+        return bmp
     }
 
     private fun onExpire() {
@@ -175,6 +237,8 @@ class TimerService : Service() {
         private const val CHANNEL = "timer"
         private const val NOTIF_ID = 1
         private const val ACTION_CANCEL = "com.ionecho.lastscroll.CANCEL"
+        // Notification.EXTRA_REQUEST_PROMOTED_ONGOING (not public in the API 36 SDK).
+        private const val EXTRA_REQUEST_PROMOTED_ONGOING = "android.requestPromotedOngoing"
 
         var instance: TimerService? = null
             private set

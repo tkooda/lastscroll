@@ -28,6 +28,10 @@
     </plurals>
     <string name="minutes_value">%1$d min</string>
     <string name="minutes_unit">minutes</string>
+    <string name="display_title">Status bar shows</string>
+    <string name="display_icon">Icon only</string>
+    <string name="display_time">Time remaining only</string>
+    <string name="display_both">Icon + time remaining</string>
     <string name="ok">OK</string>
     <string name="no_apps_title">LastScroll isn\'t active in any apps yet</string>
     <string name="no_apps_text">Add the apps you watch videos in. Using them keeps the timer from running out.</string>
@@ -43,10 +47,11 @@
     <string name="start">Start timer</string>
     <string name="channel">Sleep timer</string>
     <string name="notif_title">Sleep timer active</string>
-    <string name="notif_text">Screen off at %1$s</string>
+    <string name="notif_text">Screen off in %1$d min</string>
     <string name="notif_paused">Paused - %1$d min left</string>
     <string name="cancel">Cancel</string>
     <string name="toast">Screen off in %1$d min</string>
+    <string name="toast_reset">Sleep timer reset</string>
     <string name="no_a11y">Could not turn the screen off: the accessibility service is off.</string>
     <string name="no_pin">Your home screen app doesn\'t support adding shortcuts.</string>
 </resources>
