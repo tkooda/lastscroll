@@ -95,3 +95,34 @@ gitignored):
 
 Without it the release APK is unsigned.
 
+
+## Releases (CI)
+
+`.github/workflows/release.yml` builds, signs and publishes a GitHub Release
+when a tag like `v1.2.3` is pushed. The tag (without the `v`) must equal
+`versionName`, or the build fails. Running the workflow by hand (Actions >
+Release > Run workflow) builds and signs the APK and uploads it as a
+workflow artifact, without creating a release.
+
+To cut a release:
+
+1. Bump `versionName` and `versionCode` in `app/build.gradle.kts`.
+2. Commit, then tag: `git tag vX.Y.Z`
+3. Push the commit and the tag: `git push origin main vX.Y.Z`
+
+The workflow needs these repository secrets (Settings > Secrets and
+variables > Actions > New repository secret):
+
+- `LASTSCROLL_KEYSTORE_BASE64`: the release keystore, base64-encoded
+  (`base64 -w0 lastscroll-release.jks`)
+- `LASTSCROLL_KEYSTORE_PASSWORD`: the keystore password
+- `LASTSCROLL_KEY_ALIAS`: the key alias
+- `LASTSCROLL_KEY_PASSWORD`: the key password (same as the keystore
+  password for a PKCS12 keystore)
+
+The workflow decodes the keystore into the runner's temp directory and
+writes `keystore.properties` only for the build, then deletes both.
+
+Back up the keystore file and its passwords somewhere safe. If they are
+lost, new versions cannot be signed with the same key, and Android will not
+install an update over an existing install.
