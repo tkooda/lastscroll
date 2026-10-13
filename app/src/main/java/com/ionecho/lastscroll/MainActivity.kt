@@ -2,12 +2,14 @@ package com.ionecho.lastscroll
 
 import android.Manifest
 import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
+import android.database.ContentObserver
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
@@ -15,6 +17,8 @@ import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.provider.Settings
 import android.view.ViewGroup
@@ -132,6 +136,11 @@ class MainActivity : ComponentActivity() {
         refresh()
     }
 
+    // Track the accessibility setting live; the service may bind later than the activity starts.
+    private val a11yObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+        override fun onChange(selfChange: Boolean) = refresh()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -157,14 +166,33 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        contentResolver.registerContentObserver(
+            Settings.Secure.getUriFor(Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES), false, a11yObserver
+        )
+    }
+
+    override fun onStop() {
+        contentResolver.unregisterContentObserver(a11yObserver)
+        super.onStop()
+    }
+
     override fun onResume() {
         super.onResume()
         refresh()
     }
 
     private fun refresh() {
-        a11yOn = ActivityService.instance != null
+        a11yOn = a11yEnabled()
         notifOn = getSystemService(NotificationManager::class.java).areNotificationsEnabled()
+    }
+
+    // Based on the user's setting, not on whether the service is currently connected.
+    private fun a11yEnabled(): Boolean {
+        val me = ComponentName(this, ActivityService::class.java)
+        val list = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
+        return list.split(':').any { ComponentName.unflattenFromString(it) == me }
     }
 
     private fun grantNotifications() {
