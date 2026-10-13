@@ -16,6 +16,12 @@ the video and turns the screen off.
 - A phone that still has battery when you wake up.
 - A quiet room once you have drifted off.
 
+## Download
+
+Get the latest APK from the
+[latest release](https://github.com/tkooda/lastscroll/releases/latest)
+(download the `.apk` file under "Assets" and open it on your phone).
+
 ## How to use
 
 1. Open LastScroll and pick the apps you watch videos in.
