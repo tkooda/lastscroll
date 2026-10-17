@@ -15,8 +15,8 @@ android {
         applicationId = "com.ionecho.lastscroll"
         minSdk = 28
         targetSdk = 36
-        versionCode = 9
-        versionName = "0.0.9"
+        versionCode = 10
+        versionName = "0.0.10"
     }
 
     if (keystoreFile.exists()) {

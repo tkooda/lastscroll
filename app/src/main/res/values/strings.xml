@@ -51,6 +51,7 @@
     <string name="notif_paused">Paused - %1$d min left</string>
     <string name="cancel">Cancel</string>
     <string name="toast">Screen off in %1$d min</string>
+    <string name="toast_started">Timer started</string>
     <string name="toast_reset">Sleep timer reset</string>
     <string name="no_a11y">Could not turn the screen off: the accessibility service is off.</string>
     <string name="no_pin">Your home screen app doesn\'t support adding shortcuts.</string>

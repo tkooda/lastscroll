@@ -65,6 +65,7 @@ class TimerService : Service() {
             started = true
             running = true
             startForeground(NOTIF_ID, buildNotification())
+            Toast.makeText(this, R.string.toast_started, Toast.LENGTH_SHORT).show()
         }
         return START_NOT_STICKY
     }
