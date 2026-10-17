@@ -27,7 +27,7 @@ Get the latest APK from the
 1. Open LastScroll and pick the apps you watch videos in.
 2. Set how many minutes of no touching should count as asleep.
 3. Start the timer from the app or from its home-screen shortcut.
-4. To stop it, tap "Stop timer" in the app, or "Cancel" on the LastScroll
+4. To stop it, tap "Stop timer" in the app, or "Stop Timer" on the LastScroll
    notification.
 
 If Android will not let you turn on the accessibility setting, open
@@ -36,7 +36,7 @@ restricted settings", then try again.
 
 ## Permissions
 
-- Notifications: to show the countdown and a Cancel button.
+- Notifications: to show the countdown and a Stop Timer button.
 - Accessibility: to notice taps and scrolls, only in the apps you chose,
   and to turn the screen off when time is up.
 

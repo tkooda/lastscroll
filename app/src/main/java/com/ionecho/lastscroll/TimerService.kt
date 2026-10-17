@@ -183,7 +183,7 @@ class TimerService : Service() {
             .addAction(
                 Notification.Action.Builder(
                     Icon.createWithResource(this, R.drawable.ic_notification),
-                    getString(R.string.cancel), cancel
+                    getString(R.string.notification_stop), cancel
                 ).build()
             )
         if (promote) {
@@ -261,7 +261,7 @@ class TimerService : Service() {
         var running by mutableStateOf(false)
             private set
 
-        // Same as the notification's Cancel action. Always clears the notification,
+        // Same as the notification's Stop Timer action. Always clears the notification,
         // whether or not the service is still alive.
         fun stop(c: Context) {
             c.getSystemService(NotificationManager::class.java).cancel(NOTIF_ID)
